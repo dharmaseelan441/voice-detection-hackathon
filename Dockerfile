@@ -1,23 +1,20 @@
-# Use a lightweight Python image
 FROM python:3.9-slim
 
-# Install system dependencies (FFmpeg is required for MP3 processing)
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements and install them
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
 COPY . .
 
-# Expose the port
-EXPOSE 10000
+# Google Cloud Run expects port 8080 by default
+ENV PORT 8080
 
-# Start the application using Gunicorn (Production Server)
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:10000", "app:app"]
+# Run Gunicorn binding to the $PORT environment variable
+# 1 Worker, 8 Threads (Better for I/O waiting like audio processing)
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
