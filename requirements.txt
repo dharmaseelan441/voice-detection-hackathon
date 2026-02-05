@@ -1,0 +1,7 @@
+flask
+gunicorn
+numpy
+scipy
+librosa
+torch --index-url https://download.pytorch.org/whl/cpu
+torchaudio --index-url https://download.pytorch.org/whl/cpu
